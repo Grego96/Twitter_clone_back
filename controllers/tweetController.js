@@ -21,7 +21,8 @@ const tweetControllers = {
     const tweets = await Tweet.find()
       .sort([["createdAt", "descending"]])
       .populate("user");
-    res.render("home", { tweets, user: req.user, rondomUsers });
+    // res.render("home", { tweets, user: req.user, rondomUsers });
+    res.json({tweets})
   },
 
   store: async (req, res) => {

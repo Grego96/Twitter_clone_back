@@ -9,10 +9,9 @@ const tweetController = require("../controllers/tweetController");
 const APIController = require("../controllers/APIController");
 
 // userRoutes.
-routes.get("/register", userController.create); // OK
-routes.post("/register", userController.store); // OK
-routes.get("/login", userController.login); // OK
-routes.post("/login", authController.login);
+// routes.post("/register", userController.store); // OK
+// routes.get("/login", userController.login); // OK
+// routes.post("/login", authController.login); // OK
 routes.post("/logout", authController.logOutUser);
 
 routes.post("/user/:id", isAuthenticated, userController.following);
@@ -24,7 +23,7 @@ routes.get("/profile/:id", isAuthenticated, tweetController.profiles);
 routes.delete("/delete/:id", isAuthenticated, tweetController.destroy);
 
 // API-Routes
-routes.post("/user", APIController.storeUser);
+routes.post("/users", APIController.storeUser);
 routes.post("/login", APIController.token);
 
 // routes.post("/like", isAuthenticated, async (req, res) => {

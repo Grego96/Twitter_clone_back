@@ -12,8 +12,7 @@ function logOutUser(req, res) {
         if (err) {
             return next(err);
         }
-        res.redirect("/");
-
+        // res.redirect("/");
     });
 }
 

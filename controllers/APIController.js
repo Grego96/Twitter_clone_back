@@ -13,33 +13,47 @@ const APIController = {
       keepExtensions: true,
     });
     form.parse(req, async (error, fields, files) => {
-      const newUser = new User({
-        firstname: fields.firstname,
-        lastname: fields.lastname,
-        email: fields.email,
-        username: fields.username,
-        password: await bcrypt.hash(fields.password, 8),
-        // profileImage: files.profileImage.newFilename,
+      const user = await User.findOne({
+        $or: [{ email: fields.email }, { username: fields.username }],
       });
-      newUser.save((error) => {
-        if (error)
-          return res.status(401).json({ error, msg: "Credenciales inválidas!" });
-        return res.status(201).json("Se creó un nuevo usuario en la DB!");
-      });
+
+      if (user) {
+        res.json("user already exists with email or username");
+      } else {
+        const newUser = new User({
+          firstname: fields.firstname,
+          lastname: fields.lastname,
+          email: fields.email,
+          username: fields.username,
+          password: await bcrypt.hash(fields.password, 8),
+          // profileImage: files.profileImage.newFilename,
+        });
+        newUser.save((error) => {
+          if (error) return console.log(error);
+          res.json("Se creó un nuevo usuario en la DB!");
+        });
+      }
     });
   },
 
   token: async (req, res) => {
     const user = await User.findOne({
-      username: req.body.username,
+     $or:[ {username: req.body.username}, {email: req.body.email} ] 
     });
-    const compare = bcrypt.compare(req.body.password, user.password);
 
-    if (user && compare) {
-      const token = jwt.sign({ sub: user.username }, process.env.JWT_SECRET_STRING);
-      res.json({ token });
+    if (user) {
+      const compare = await bcrypt.compare(req.body.password, user.password);
+      if (compare) {
+        const token = jwt.sign(
+          { sub: user.username },
+          process.env.JWT_SECRET_STRING
+        );
+        res.json({ token });
+      } else {
+        res.json("credenciales invalidas");
+      }
     } else {
-      res.json("Algo falló!");
+      res.json("No se encontro al usuario");
     }
   },
 };
