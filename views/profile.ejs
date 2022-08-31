@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bienvenido a tu perfil de Twitter</title>
+    <script src="https://kit.fontawesome.com/5f5e2fe79d.js" crossorigin="anonymous"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
+      crossorigin="anonymous"
+    />
+<link rel="stylesheet" href="/css/profileStyles.css">
+  </head>
+  <body>
+    <section>
+      <div class="container">
+        <div class="row">
+
+
+            <!-- ---------------------- SIDEBAR --------------------- -->
+          <div class="col-3">
+            <%- include("partials/leftSidebar") %> 
+           
+          </div>
+
+          <!-- ------------------SIDEBAR END --------------------- -->
+
+
+          <!-- ---------------- TWEET ZONE START ---------------- -->
+          <div class="col-6 g-0" id="parallelLines">
+            <div class="d-flex profileUser align-items-center">
+              <a href="/"><div class="backArrow mx-2">  <i class="fa-solid fa-arrow-left"></i> </div></a> 
+              <div class="mb-2">
+                <h4 >  <%= userTweets.firstname + " " + userTweets.lastname  %></h4>
+               <h6 class="tt" " > <%= userTweets.tweets.length %>  Tweets</h6>
+              </div>
+            </div>
+                
+            <div id="hh">
+              <div id="headerPic">
+              </div>
+              <div>
+                <% if(userTweets.profileImage.includes("http")) {%>
+                  <img
+                  id="headProfileImage"
+                    src="<%=userTweets.profileImage%>"
+                    alt="profile image"
+                  />
+                  <% } else{%>
+                  <img
+                  id="headProfileImage"
+                    src="/img/<%= userTweets.profileImage%>"
+                    alt="profile image"
+                  />
+                  <% } %>
+              </div>
+              <button class="btn" id="edit-btn"> Editar perfil</button>
+            </div>
+            <div id="userInfo">
+               <h4 class="profileUser"><strong>  <%= userTweets.firstname + " " + userTweets.lastname  %></strong></h4>
+               <h6 class="tt"> @<%=  userTweets.username%> </h6>
+               <p class="my-4"><%= userTweets.description %> </p>
+               <h6 id="born"> Fecha de nacimiento: 01 de agosto de 1962 | Se unió en septiembrede 1998</h6>
+                <h6><%= userTweets.followings.length%> 
+                  <text class="tt"> Siguiendo</text>  
+                  <%= userTweets.followers.length%> 
+                  <text class="tt"> Seguidores</text>
+                </h6> 
+              </div>
+            <div>
+                <ul class="d-flex justify-content-around p-0 m-0" >
+                    <li class="profileList underline" ><span> Tweets</span></li>
+                    <li  class="profileList">Tweets y respuestas</li>
+                    <li  class="profileList">Fotos y videos</li>
+                    <li  class="profileList">Me gusta</li>
+                </ul>
+            </div>
+                
+            <hr class="mt-0"/>
+
+            <% for( const tweet of userTweets.tweets) { %>
+              <% if (user.id === userTweets.id) { %>
+                <form action="/delete/<%=tweet.id%>?_method=DELETE" method="post">
+                  <button class="user delete" type="submit">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </form>
+              <% } %>
+            <div class=" d-flex w-100" >
+              <div class="px-3">
+                <% if(userTweets.profileImage.includes("http")) {%>
+                  <img
+                    src="<%=userTweets.profileImage%>"
+                    class="profileImage"
+                    alt="profile image"
+                  />
+                  <% } else{%>
+                  <img
+                    src="/img/<%= userTweets.profileImage%>"
+                    class="profileImage"
+                    alt="profile image"
+                  />
+                  <% } %>
+              </div>
+              <div class="px-3" style="width: 100%">
+                <div>
+                  <h6 style="display: inline-block; margin-right: 5px;"><strong>     <%= userTweets.firstname + " " + userTweets.lastname  %> </strong></h6>
+                  <span class="user">
+                    @<%= userTweets.username %>
+                  </span>
+                  <p><%= tweet.text %></p>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-evenly align-items-center" >
+                <i class="fa-regular fa-comment"></i>
+                <i class="fa-solid fa-retweet"></i>
+                <form action="/like" method="post">
+                    <button id="like" type="submit" ">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                </form>
+                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+            </div>
+            <hr />
+            <% } %>
+          </div>
+
+          <!-- ------------------------TWEETS ZONE END ---------------------- -->
+
+
+ <!-------------- TRENDING BAR ------------>
+          <div class="col-3">
+            <%- include("partials/trendSidebar") %> 
+
+          </div>
+<!-- ------- TRENDING BAR END -------- -->
+
+
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

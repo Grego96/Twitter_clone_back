@@ -1,0 +1,144 @@
+body {
+  color: white;
+  background-color: black;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  cursor: pointer;
+}
+a {
+  color: white;
+}
+a:link,
+a:visited {
+  text-decoration: inherit;
+  text-decoration: none;
+  cursor: auto;
+}
+
+a:hover {
+  color: white;
+}
+li h5 {
+  width: max-content;
+  padding: 10px 20px;
+  margin: 20px 0;
+}
+li h5:hover {
+  color: white;
+  background-color: #181818;
+  height: fit-content;
+  border-radius: 100px;
+}
+
+#home {
+  margin-top: 20px;
+  padding: 0 16px;
+}
+
+.trends {
+  padding: 25px;
+  background-color: #16181c;
+  border-radius: 20px;
+}
+.tt {
+  color: #424853;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.loremTT {
+  margin: 0;
+  font-size: 0.8;
+  font-weight: bold;
+}
+
+h6 {
+  display: inline-block;
+  margin-right: 5px;
+}
+.user {
+  color: #424853;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+.user:hover {
+  color: #181818;
+}
+
+#like {
+  background-color: black;
+  border: none;
+  color: white;
+}
+
+#search {
+  margin: 20px 0;
+  padding: 10px 20px;
+  border-radius: 50px;
+  background-color: #16181c;
+  width: 100%;
+  border: solid 1px #16181c;
+}
+
+#parallelLines {
+  border-right: solid rgb(152, 151, 151) 0.5px;
+  border-left: solid rgb(152, 151, 151) 0.5px;
+}
+
+.tweet-btn {
+  background-color: #1a8cd8;
+  color: white;
+  border-radius: 50px;
+  font-weight: bold;
+}
+.tweet-btn:hover,
+.tweet-btn:focus {
+  background-color: #1681c8;
+  border: #1681c8 solid 1px;
+}
+#small-tweet-btn {
+  position: relative;
+  left: 465px;
+}
+
+#sidebarTweetBtn {
+  padding: 15px 0;
+  width: 100%;
+}
+
+.profileImage {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50px;
+}
+
+#text {
+  background-color: black !important;
+  color: white !important;
+  border: none !important;
+}
+
+#text:focus {
+  border-color: none !important;
+  box-shadow: none !important;
+}
+
+#textarea {
+  width: 100%;
+  margin-right: 15px;
+}
+
+.sidebar {
+  position: fixed;
+  height: 100vh;
+}
+#logout {
+  background-color: black;
+  color: #424853;
+  border: none;
+}
