@@ -4,24 +4,9 @@ const _ = require("lodash");
 
 const tweetControllers = {
   index: async (req, res) => {
-    const users = await User.find();
-    function filtrarUsers(u) {
-      let exist = false;
-      for (const follow of req.user.followings) {
-        if (u.id === follow.id) {
-          exist = true;
-        }
-      }
-      if (u.id !== req.user.id && !exist) {
-        return u;
-      }
-    }
-    let rondomUsers = _.sampleSize(users, _.random(5, 7)).filter(filtrarUsers);
-
     const tweets = await Tweet.find()
       .sort([["createdAt", "descending"]])
       .populate("user");
-    // res.render("home", { tweets, user: req.user, rondomUsers });
     res.json({tweets})
   },
 
