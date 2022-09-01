@@ -6,9 +6,18 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const authController = require("../controllers/authController");
 const userController = require("../controllers/userController");
 const tweetController = require("../controllers/tweetController");
-const {storeUser, token, index, storeTweet} = require("../controllers/APIController");
+const {
+  storeUser,
+  token,
+  index,
+  storeTweet,
+  profile,
+} = require("../controllers/APIController");
 var { expressjwt: jwt } = require("express-jwt");
-const verifyJwt = jwt({ secret: process.env.JWT_SECRET_STRING, algorithms: ["HS256"] });
+const verifyJwt = jwt({
+  secret: process.env.JWT_SECRET_STRING,
+  algorithms: ["HS256"],
+});
 
 // userRoutes.
 // routes.post("/register", userController.store); // OK
@@ -19,14 +28,15 @@ routes.post("/logout", authController.logOutUser);
 routes.post("/user/:id", isAuthenticated, userController.following);
 
 // tweetsRoutes
-routes.post("/", isAuthenticated, tweetController.store);
-routes.get("/profile/:id", isAuthenticated, tweetController.profiles);
+// routes.post("/", isAuthenticated, tweetController.store);
+// routes.get("/profile/:id", isAuthenticated, tweetController.profiles);
 routes.delete("/delete/:id", isAuthenticated, tweetController.destroy);
 
 // API-Routes
 routes.get("/", verifyJwt, index);
 routes.post("/users", storeUser);
 routes.post("/login", token);
-routes.post("/tweets", verifyJwt, storeTweet)
+routes.post("/tweets", verifyJwt, storeTweet);
+routes.get("/profile/:id", verifyJwt, profile);
 
 module.exports = routes;
