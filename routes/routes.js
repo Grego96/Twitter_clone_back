@@ -13,6 +13,7 @@ const {
   storeTweet,
   profile,
   destroy,
+  following,
 } = require("../controllers/APIController");
 const { expressjwt: jwt } = require("express-jwt");
 const verifyJwt = jwt({
@@ -22,7 +23,6 @@ const verifyJwt = jwt({
 
 routes.post("/logout", authController.logOutUser);
 
-routes.post("/user/:id", isAuthenticated, userController.following);
 
 // API-Routes
 routes.get("/", verifyJwt, index);
@@ -31,5 +31,6 @@ routes.post("/login", token);
 routes.post("/tweets", verifyJwt, storeTweet);
 routes.get("/profiles/:id", verifyJwt, profile);
 routes.delete("/tweets/:id", verifyJwt, destroy);
+routes.post("/users/:id", verifyJwt, following);
 
 module.exports = routes;

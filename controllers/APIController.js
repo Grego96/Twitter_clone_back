@@ -10,7 +10,7 @@ async function storeUser(req, res) {
   });
 
   if (user) {
-    res.json("user already exists with email or username");
+    res.json({message:"user already exists with email or username"});
   } else {
     const newUser = new User({
       firstname: req.body.firstname,
@@ -20,8 +20,8 @@ async function storeUser(req, res) {
       password: await bcrypt.hash(req.body.password, 8),
     });
     newUser.save((error) => {
-      if (error) return res.json({ message: "falta un campo" });
-      res.json("Se creó un nuevo usuario en la DB!");
+      if (error) return res.json({ message: "a field is missing" });
+      res.json({message:"a new user was created in the db"});
     });
   }
 }
@@ -40,10 +40,10 @@ async function token(req, res) {
       );
       res.json({ token });
     } else {
-      res.json("credenciales invalidas");
+      res.json({message:"invalid credentials"});
     }
   } else {
-    res.json("No se encontro al usuario");
+    res.json({message:"no user found"});
   }
 }
 
@@ -56,7 +56,7 @@ async function index(req, res) {
     user: { $in: followings },
   })
     .sort([["createdAt", "descending"]])
-    .populate("user");
+    .populate("user", "id firstname lastname username profileImage");
   res.json({ tweets });
 }
 
@@ -69,19 +69,19 @@ async function storeTweet(req, res) {
   user.tweets.push(newTweet.id);
   newTweet.save((error) => {
     if (error) {
-      res.json({ message: "algo salio mal al crear un tweet" });
+      res.json({ message: "something went wrong creating a tweet" });
     }
   });
   user.save((error) => {
     if (error) {
-      res.json({ message: "algo salio mal al actualizar el usuario" });
+      res.json({ message: "something went wrong when updating the user" });
     }
   });
-  res.json({ message: "se actualizo el usuario en la DB" });
+  res.json({ message: "the user was updated in the DB" });
 }
 
 async function profile(req, res) {
-  const userData = await User.findById(req.params.id)
+  const userData = await User.findById(req.params.id).select('id firstname lastname username profileImage')
     .populate("tweets")
     .sort([["createdAt", "descending"]]);
   res.json(userData);
@@ -96,9 +96,9 @@ async function destroy(req, res) {
     await User.findByIdAndUpdate(req.auth.id, {
       $pull: { tweets: req.params.id },
     });
-    res.json({ message: "se eliminó el tweet" });
+    res.json({ message: "tweet was deleted" });
   } else {
-    res.json({ message: "no se elimino el tweet" });
+    res.json({ message: "the tweet was not deleted" });
   }
 }
 
@@ -111,13 +111,16 @@ async function following(req, res) {
   if (!isFollowing) {
     follower.followers.push(userFollowing.id);
     userFollowing.followings.push(follower.id);
+    res.json({message: "follow"})
   } else {
     follower.followers.filter((follower) => {
       return follower.id !== req.auth.id;
     });
+    res.json({message: "unfollow"})
   }
   follower.save();
   userFollowing.save();
+  // console.log(userFollowing);
 }
 
 module.exports = {
@@ -127,4 +130,5 @@ module.exports = {
   storeTweet,
   profile,
   destroy,
+  following
 };
