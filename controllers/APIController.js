@@ -49,23 +49,40 @@ async function token(req, res) {
 
 async function index(req, res) {
   // console.log(req.auth);
-  const user = await User.findById(req.auth.id)
-  const followings = user.followings
-  console.log(user.followings);
+  const user = await User.findById(req.auth.id);
+  const followings = user.followings;
 
   const tweets = await Tweet.find({
-    "user": { $in: 
-      followings
-     }
+    user: { $in: followings },
   })
     .sort([["createdAt", "descending"]])
     .populate("user");
- console.log(tweets.length);
   res.json({ tweets });
+}
+
+async function storeTweet(req, res) {
+  const newTweet = await new Tweet({
+    text: req.body.text,
+    user: req.auth.id,
+  });
+  const user = await User.findById(req.auth.id);
+  user.tweets.push(newTweet.id);
+  newTweet.save((error) => {
+    if (error) {
+      res.json({ message: "algo salio mal al crear un tweet" });
+    }
+  });
+  user.save((error) => {
+    if (error) {
+      res.json({ message: "algo salio mal al actualizar el usuario" });
+    }
+  });
+  res.json({ message: "se actualizo el usuario en la DB" });
 }
 
 module.exports = {
   storeUser,
   token,
   index,
+  storeTweet,
 };
