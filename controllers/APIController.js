@@ -6,7 +6,7 @@ const checkJwt = require("express-jwt");
 
 async function storeUser(req, res) {
   const user = await User.findOne({
-    $or: [{ email: req.body.email }, { username: req.body.username }],
+    $or: [{ "email": req.body.email }, { "username": req.body.username }],
   });
 
   if (user) {
@@ -20,7 +20,7 @@ async function storeUser(req, res) {
       password: await bcrypt.hash(req.body.password, 8),
     });
     newUser.save((error) => {
-      if (error) return console.log(error);
+      if (error) return res.json({message: "falta un campo"});
       res.json("Se creó un nuevo usuario en la DB!");
     });
   }
@@ -30,6 +30,7 @@ async function token(req, res) {
   const user = await User.findOne({
     $or: [{ username: req.body.username }, { email: req.body.email }],
   });
+  console.log(user);
 
   if (user) {
     const compare = await bcrypt.compare(req.body.password, user.password);
