@@ -89,17 +89,35 @@ async function profile(req, res) {
 
 async function destroy(req, res) {
   const user = await User.findById(req.auth.id).populate("tweets");
-  const existTweet = user.tweets.some((tweet) => tweet.id === req.body.id);
+  const existTweet = user.tweets.some((tweet) => tweet.id === req.params.id);
 
   if (existTweet) {
-    await Tweet.findByIdAndRemove(req.body.id);
+    await Tweet.findByIdAndRemove(req.params.id);
     await User.findByIdAndUpdate(req.auth.id, {
-      $pull: { tweets: req.body.id },
+      $pull: { tweets: req.params.id },
     });
     res.json({ message: "se eliminó el tweet" });
   } else {
     res.json({ message: "no se elimino el tweet" });
   }
+}
+
+async function following(req, res) {
+  const userFollowing = await User.findById(req.auth.id);
+  const follower = await User.findById(req.params.id);
+  const isFollowing = userFollowing.followings.some((following) => {
+    return req.params.id === following.id;
+  });
+  if (!isFollowing) {
+    follower.followers.push(userFollowing.id);
+    userFollowing.followings.push(follower.id);
+  } else {
+    follower.followers.filter((follower) => {
+      return follower.id !== req.auth.id;
+    });
+  }
+  follower.save();
+  userFollowing.save();
 }
 
 module.exports = {
@@ -108,5 +126,5 @@ module.exports = {
   index,
   storeTweet,
   profile,
-  destroy
+  destroy,
 };
