@@ -7,7 +7,7 @@ const tweetControllers = {
     const tweets = await Tweet.find()
       .sort([["createdAt", "descending"]])
       .populate("user");
-    res.json({tweets})
+    res.json({ tweets });
   },
 
   store: async (req, res) => {
@@ -52,20 +52,18 @@ const tweetControllers = {
   },
 
   destroy: async (req, res) => {
-    let existTweet = false;
-    const user = await User.findById(req.user.id).populate("tweets");
-    for (const tweet of user.tweets) {
-      if (tweet.id === req.params.id) {
-        existTweet = true;
-      }
-    }
+    const user = await User.findById(req.auth.id).populate("tweets");
+    const existTweet = user.tweets.some((tweet) => tweet.id === req.body.id);
+
     if (existTweet) {
-      await Tweet.findByIdAndRemove(req.params.id);
-      await User.findByIdAndUpdate(req.user.id, { $pull: { tweets: req.params.id } });
+      await Tweet.findByIdAndRemove(req.body.id);
+      await User.findByIdAndUpdate(req.auth.id, {
+        $pull: { tweets: req.body.id },
+      });
     } else {
-      console.log("nada pasó");
+      res.json({ message: "no se elimino el tweet" });
     }
-    res.redirect(`/profile/${req.user.id}`);
+    res.json({ message: "se eliminó el tweet" });
   },
 };
 

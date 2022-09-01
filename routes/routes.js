@@ -12,6 +12,7 @@ const {
   index,
   storeTweet,
   profile,
+  destroy,
 } = require("../controllers/APIController");
 var { expressjwt: jwt } = require("express-jwt");
 const verifyJwt = jwt({
@@ -30,13 +31,14 @@ routes.post("/user/:id", isAuthenticated, userController.following);
 // tweetsRoutes
 // routes.post("/", isAuthenticated, tweetController.store);
 // routes.get("/profile/:id", isAuthenticated, tweetController.profiles);
-routes.delete("/delete/:id", isAuthenticated, tweetController.destroy);
+// routes.delete("/delete/:id", isAuthenticated, tweetController.destroy);
 
 // API-Routes
 routes.get("/", verifyJwt, index);
 routes.post("/users", storeUser);
 routes.post("/login", token);
 routes.post("/tweets", verifyJwt, storeTweet);
-routes.get("/profile/:id", verifyJwt, profile);
+routes.get("/profiles/:id", verifyJwt, profile);
+routes.delete("/tweets",verifyJwt, destroy);
 
 module.exports = routes;

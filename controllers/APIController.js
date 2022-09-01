@@ -87,10 +87,26 @@ async function profile(req, res) {
   res.json(userData);
 }
 
+async function destroy(req, res) {
+  const user = await User.findById(req.auth.id).populate("tweets");
+  const existTweet = user.tweets.some((tweet) => tweet.id === req.body.id);
+
+  if (existTweet) {
+    await Tweet.findByIdAndRemove(req.body.id);
+    await User.findByIdAndUpdate(req.auth.id, {
+      $pull: { tweets: req.body.id },
+    });
+    res.json({ message: "se eliminó el tweet" });
+  } else {
+    res.json({ message: "no se elimino el tweet" });
+  }
+}
+
 module.exports = {
   storeUser,
   token,
   index,
   storeTweet,
   profile,
+  destroy
 };
