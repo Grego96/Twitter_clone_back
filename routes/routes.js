@@ -1,11 +1,7 @@
 const express = require("express");
 const routes = express.Router();
-const User = require("../models/User");
-const Tweet = require("../models/Tweet");
-const isAuthenticated = require("../middlewares/isAuthenticated");
 const authController = require("../controllers/authController");
-const userController = require("../controllers/userController");
-const tweetController = require("../controllers/tweetController");
+
 const {
   storeUser,
   token,
@@ -14,6 +10,7 @@ const {
   profile,
   destroy,
   following,
+  like,
 } = require("../controllers/APIController");
 const { expressjwt: jwt } = require("express-jwt");
 const verifyJwt = jwt({
@@ -23,7 +20,6 @@ const verifyJwt = jwt({
 
 routes.post("/logout", authController.logOutUser);
 
-
 // API-Routes
 routes.get("/", verifyJwt, index);
 routes.post("/users", storeUser);
@@ -32,5 +28,6 @@ routes.post("/tweets", verifyJwt, storeTweet);
 routes.get("/profiles/:id", verifyJwt, profile);
 routes.delete("/tweets/:id", verifyJwt, destroy);
 routes.post("/users/:id", verifyJwt, following);
+routes.post("/likes/:id", verifyJwt, like);
 
 module.exports = routes;

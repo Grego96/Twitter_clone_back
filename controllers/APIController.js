@@ -10,7 +10,7 @@ async function storeUser(req, res) {
   });
 
   if (user) {
-    res.json({ message: "user already exists with email or username" });
+    res.json({ message: "User already exists with email or username." });
   } else {
     const newUser = new User({
       firstname: req.body.firstname,
@@ -20,8 +20,8 @@ async function storeUser(req, res) {
       password: await bcrypt.hash(req.body.password, 8),
     });
     newUser.save((error) => {
-      if (error) return res.json({ message: "a field is missing" });
-      res.json({ message: "a new user was created in the db" });
+      if (error) return res.json({ message: "A field is missing." });
+      res.json({ message: "A new user was created in the db." });
     });
   }
 }
@@ -35,16 +35,13 @@ async function token(req, res) {
   if (user) {
     const compare = await bcrypt.compare(req.body.password, user.password);
     if (compare) {
-      const token = jwt.sign(
-        { user: user.username, id: user._id },
-        process.env.JWT_SECRET_STRING
-      );
+      const token = jwt.sign({ user: user.username, id: user._id }, process.env.JWT_SECRET_STRING);
       res.json({ token });
     } else {
-      res.json({ message: "invalid credentials" });
+      res.json({ message: "Invalid credentials." });
     }
   } else {
-    res.json({ message: "no user found" });
+    res.json({ message: "No user found." });
   }
 }
 
@@ -57,7 +54,7 @@ async function index(req, res) {
     user: { $in: followings },
   })
     .sort([["createdAt", "descending"]])
-    .populate("user", "id firstname lastname username profileImage");
+    .populate("user", "id firstname lastname username profileImage.");
   res.json({ tweets });
 }
 
@@ -70,15 +67,15 @@ async function storeTweet(req, res) {
   user.tweets.push(newTweet.id);
   newTweet.save((error) => {
     if (error) {
-      res.json({ message: "something went wrong creating a tweet" });
+      res.json({ message: "Something went wrong creating a tweet." });
     }
   });
   user.save((error) => {
     if (error) {
-      res.json({ message: "something went wrong when updating the user" });
+      res.json({ message: "Something went wrong when updating the user." });
     }
   });
-  res.json({ message: "the user was updated in the DB" });
+  res.json({ message: "The user was updated in the DB." });
 }
 
 async function profile(req, res) {
@@ -98,9 +95,9 @@ async function destroy(req, res) {
     await User.findByIdAndUpdate(req.auth.id, {
       $pull: { tweets: req.params.id },
     });
-    res.json({ message: "tweet was deleted" });
+    res.json({ message: "Tweet was deleted." });
   } else {
-    res.json({ message: "the tweet was not deleted" });
+    res.json({ message: "The tweet was not deleted." });
   }
 }
 
@@ -116,7 +113,7 @@ async function following(req, res) {
     if (!isFollowing) {
       isFollow.followers.push(userFollowing.id);
       userFollowing.followings.push(isFollow.id);
-      res.json({ message: "follow" });
+      res.json({ message: "Follow" });
     } else {
       const newFollowers = isFollow.followers.filter((follower) => {
         return follower._id.valueOf() !== req.auth.id;
@@ -126,12 +123,36 @@ async function following(req, res) {
         return following._id.valueOf() !== req.params.id;
       });
       userFollowing.followings = newFollowings;
-      res.json({ message: "unfollow" });
+      res.json({ message: "Unfollow" });
     }
     isFollow.save();
     userFollowing.save();
   } else {
-    res.json({ message: "user not found" });
+    res.json({ message: "User not found." });
+  }
+}
+
+async function like(req, res) {
+  const likedTweet = await Tweet.findById(req.params.id);
+
+  const isLiked = likedTweet.likes.some((like) => {
+    return like.valueOf() === req.auth.id;
+  });
+
+  if (likedTweet) {
+    if (!isLiked) {
+      likedTweet.likes.push(req.auth.id);
+      res.json({ Message: "Tweet liked!" });
+    } else {
+      const unlikedTweet = likedTweet.likes.filter((unlike) => {
+        return unlike._id.valueOf() !== req.auth.id;
+      });
+      likedTweet.likes = unlikedTweet;
+      res.json({ Message: "Tweet unliked!" });
+    }
+    likedTweet.save();
+  } else {
+    res.json({ Message: "Couldn't like/unlike tweet." });
   }
 }
 
@@ -143,4 +164,5 @@ module.exports = {
   profile,
   destroy,
   following,
+  like,
 };
