@@ -18,6 +18,7 @@ async function storeUser(req, res) {
       email: req.body.email,
       username: req.body.username,
       password: await bcrypt.hash(req.body.password, 8),
+      profileImage: req.body.profileImage ? req.body.profileImage : "../public/img/a0e243b3a508306970f49bc00.jpg"
     });
     newUser.save((error) => {
       if (error) return res.json({ error: "A field is missing." });
@@ -30,7 +31,6 @@ async function token(req, res) {
   const user = await User.findOne({
     $or: [{ username: req.body.username }, { email: req.body.email }],
   });
-  console.log(user);
 
   if (user) {
     const compare = await bcrypt.compare(req.body.password, user.password);
@@ -41,11 +41,12 @@ async function token(req, res) {
       res.json({ error: "Invalid credentials." });
     }
   } else {
-    res.json({ error: "No user found." });
+    res.json({ error: "Invalid credentials." });
   }
 }
 
 async function index(req, res) {
+  // console.log(req.user);
   const user = await User.findById(req.auth.id);
   const followings = user.followings;
 
@@ -79,7 +80,9 @@ async function storeTweet(req, res) {
 
 async function profile(req, res) {
   const userData = await User.findById(req.params.id)
-    .select("id firstname lastname username email description profileImage tweets followers followings")
+    .select(
+      "id firstname lastname username email description profileImage tweets followers followings",
+    )
     .populate("tweets")
     .sort([["createdAt", "descending"]]);
   res.json(userData);

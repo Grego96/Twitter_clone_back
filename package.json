@@ -1,5 +1,5 @@
 {
-  "name": "twitter_clone_back",
+  "name": "twitter_clone_api",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
@@ -16,24 +16,17 @@
     "colors": "^1.4.0",
     "date-fns": "^2.29.1",
     "dotenv": "^10.0.0",
-    "ejs": "^3.1.8",
     "express": "^4.18.1",
     "express-jwt": "^7.7.5",
     "express-session": "^1.17.3",
     "formidable": "^2.0.1",
     "jsonwebtoken": "^8.5.1",
-    "method-override": "^3.0.0",
     "mongoose": "^6.5.1",
-    "mysql2": "^2.3.3",
     "nodemon": "^2.0.19",
-    "passport": "^0.6.0",
-    "passport-local": "^1.0.0",
     "path": "^0.12.7",
-    "sequelize": "^6.21.3",
-    "slugify": "^1.6.5",
-    "sqlite3": "^5.0.8"
+    "slugify": "^1.6.5"
   },
-  "description": "Hack Academy - Ejemplo de MVC y Sequelize",
+  "description": "twitter_clone_api",
   "devDependencies": {
     "@faker-js/faker": "^6.3.1"
   }

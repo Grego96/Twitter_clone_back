@@ -16,18 +16,18 @@ const verifyJwt = jwt({
   secret: process.env.JWT_SECRET_STRING,
   algorithms: ["HS256"],
 });
-const userGlobal = require("../middlewares/userGobalAvailable")
+const userGlobal = require("../middlewares/userGobalAvailable");
 
 routes.post("/logout", authController.logOutUser);
 
 // API-Routes
 routes.get("/", verifyJwt, userGlobal, index);
-routes.post("/users", storeUser);
 routes.post("/login", token);
-routes.post("/tweets", verifyJwt, userGlobal, storeTweet);
-routes.get("/profiles/:id", verifyJwt, userGlobal, profile);
-routes.delete("/tweets/:id", verifyJwt, userGlobal, destroy);
-routes.post("/users/:id", verifyJwt, userGlobal, following);
-routes.post("/likes/:id", verifyJwt, userGlobal, like);
+routes.post("/users", storeUser);
+routes.get("/users/:id", verifyJwt, userGlobal, profile);
+routes.patch("/users/follow/:id", verifyJwt, following);
+routes.post("/tweets", verifyJwt, storeTweet);
+routes.patch("/tweets/like/:id", verifyJwt, like);
+routes.delete("/tweets/:id", verifyJwt, destroy);
 
 module.exports = routes;
