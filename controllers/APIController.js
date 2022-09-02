@@ -10,7 +10,7 @@ async function storeUser(req, res) {
   });
 
   if (user) {
-    res.json({ message: "User already exists with email or username." });
+    res.json({ error: "User already exists with email or username." });
   } else {
     const newUser = new User({
       firstname: req.body.firstname,
@@ -20,7 +20,7 @@ async function storeUser(req, res) {
       password: await bcrypt.hash(req.body.password, 8),
     });
     newUser.save((error) => {
-      if (error) return res.json({ message: "A field is missing." });
+      if (error) return res.json({ error: "A field is missing." });
       res.json({ message: "A new user was created in the db." });
     });
   }
@@ -35,18 +35,17 @@ async function token(req, res) {
   if (user) {
     const compare = await bcrypt.compare(req.body.password, user.password);
     if (compare) {
-      const token = jwt.sign({ user: user.username, id: user._id }, process.env.JWT_SECRET_STRING);
+      const token = jwt.sign({ user: user.username, id: user.id }, process.env.JWT_SECRET_STRING);
       res.json({ token });
     } else {
-      res.json({ message: "Invalid credentials." });
+      res.json({ error: "Invalid credentials." });
     }
   } else {
-    res.json({ message: "No user found." });
+    res.json({ error: "No user found." });
   }
 }
 
 async function index(req, res) {
-  console.log(req.auth);
   const user = await User.findById(req.auth.id);
   const followings = user.followings;
 
@@ -54,7 +53,7 @@ async function index(req, res) {
     user: { $in: followings },
   })
     .sort([["createdAt", "descending"]])
-    .populate("user", "id firstname lastname username profileImage.");
+    .populate("user", "id firstname lastname username profileImage");
   res.json({ tweets });
 }
 
@@ -67,12 +66,12 @@ async function storeTweet(req, res) {
   user.tweets.push(newTweet.id);
   newTweet.save((error) => {
     if (error) {
-      res.json({ message: "Something went wrong creating a tweet." });
+      res.json({ error: "Something went wrong creating a tweet." });
     }
   });
   user.save((error) => {
     if (error) {
-      res.json({ message: "Something went wrong when updating the user." });
+      res.json({ error: "Something went wrong when updating the user." });
     }
   });
   res.json({ message: "The user was updated in the DB." });
@@ -80,7 +79,7 @@ async function storeTweet(req, res) {
 
 async function profile(req, res) {
   const userData = await User.findById(req.params.id)
-    .select("id firstname lastname username profileImage")
+    .select("id firstname lastname username email description profileImage tweets followers followings")
     .populate("tweets")
     .sort([["createdAt", "descending"]]);
   res.json(userData);
@@ -97,7 +96,7 @@ async function destroy(req, res) {
     });
     res.json({ message: "Tweet was deleted." });
   } else {
-    res.json({ message: "The tweet was not deleted." });
+    res.json({ error: "The tweet does not exist." });
   }
 }
 
@@ -142,17 +141,17 @@ async function like(req, res) {
   if (likedTweet) {
     if (!isLiked) {
       likedTweet.likes.push(req.auth.id);
-      res.json({ Message: "Tweet liked!" });
+      res.json({ message: "Tweet liked!" });
     } else {
       const unlikedTweet = likedTweet.likes.filter((unlike) => {
         return unlike._id.valueOf() !== req.auth.id;
       });
       likedTweet.likes = unlikedTweet;
-      res.json({ Message: "Tweet unliked!" });
+      res.json({ message: "Tweet unliked!" });
     }
     likedTweet.save();
   } else {
-    res.json({ Message: "Couldn't like/unlike tweet." });
+    res.json({ error: "Couldn't like/unlike tweet." });
   }
 }
 

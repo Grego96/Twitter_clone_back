@@ -1,7 +1,6 @@
 const express = require("express");
 const routes = express.Router();
 const authController = require("../controllers/authController");
-
 const {
   storeUser,
   token,
@@ -17,17 +16,18 @@ const verifyJwt = jwt({
   secret: process.env.JWT_SECRET_STRING,
   algorithms: ["HS256"],
 });
+const userGlobal = require("../middlewares/userGobalAvailable")
 
 routes.post("/logout", authController.logOutUser);
 
 // API-Routes
-routes.get("/", verifyJwt, index);
+routes.get("/", verifyJwt, userGlobal, index);
 routes.post("/users", storeUser);
 routes.post("/login", token);
-routes.post("/tweets", verifyJwt, storeTweet);
-routes.get("/profiles/:id", verifyJwt, profile);
-routes.delete("/tweets/:id", verifyJwt, destroy);
-routes.post("/users/:id", verifyJwt, following);
-routes.post("/likes/:id", verifyJwt, like);
+routes.post("/tweets", verifyJwt, userGlobal, storeTweet);
+routes.get("/profiles/:id", verifyJwt, userGlobal, profile);
+routes.delete("/tweets/:id", verifyJwt, userGlobal, destroy);
+routes.post("/users/:id", verifyJwt, userGlobal, following);
+routes.post("/likes/:id", verifyJwt, userGlobal, like);
 
 module.exports = routes;
