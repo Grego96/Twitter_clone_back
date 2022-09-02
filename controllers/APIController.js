@@ -10,7 +10,7 @@ async function storeUser(req, res) {
   });
 
   if (user) {
-    res.json({message:"user already exists with email or username"});
+    res.json({ message: "user already exists with email or username" });
   } else {
     const newUser = new User({
       firstname: req.body.firstname,
@@ -21,7 +21,7 @@ async function storeUser(req, res) {
     });
     newUser.save((error) => {
       if (error) return res.json({ message: "a field is missing" });
-      res.json({message:"a new user was created in the db"});
+      res.json({ message: "a new user was created in the db" });
     });
   }
 }
@@ -30,25 +30,26 @@ async function token(req, res) {
   const user = await User.findOne({
     $or: [{ username: req.body.username }, { email: req.body.email }],
   });
+  console.log(user);
 
   if (user) {
     const compare = await bcrypt.compare(req.body.password, user.password);
     if (compare) {
       const token = jwt.sign(
-        { user: user.username, id: user.id },
+        { user: user.username, id: user._id },
         process.env.JWT_SECRET_STRING
       );
       res.json({ token });
     } else {
-      res.json({message:"invalid credentials"});
+      res.json({ message: "invalid credentials" });
     }
   } else {
-    res.json({message:"no user found"});
+    res.json({ message: "no user found" });
   }
 }
 
 async function index(req, res) {
-  // console.log(req.auth);
+  console.log(req.auth);
   const user = await User.findById(req.auth.id);
   const followings = user.followings;
 
@@ -81,7 +82,8 @@ async function storeTweet(req, res) {
 }
 
 async function profile(req, res) {
-  const userData = await User.findById(req.params.id).select('id firstname lastname username profileImage')
+  const userData = await User.findById(req.params.id)
+    .select("id firstname lastname username profileImage")
     .populate("tweets")
     .sort([["createdAt", "descending"]]);
   res.json(userData);
@@ -104,23 +106,33 @@ async function destroy(req, res) {
 
 async function following(req, res) {
   const userFollowing = await User.findById(req.auth.id);
-  const follower = await User.findById(req.params.id);
+  const isFollow = await User.findById(req.params.id);
+
   const isFollowing = userFollowing.followings.some((following) => {
-    return req.params.id === following.id;
+    return following.valueOf() === req.params.id;
   });
-  if (!isFollowing) {
-    follower.followers.push(userFollowing.id);
-    userFollowing.followings.push(follower.id);
-    res.json({message: "follow"})
+
+  if (isFollow) {
+    if (!isFollowing) {
+      isFollow.followers.push(userFollowing.id);
+      userFollowing.followings.push(isFollow.id);
+      res.json({ message: "follow" });
+    } else {
+      const newFollowers = isFollow.followers.filter((follower) => {
+        return follower._id.valueOf() !== req.auth.id;
+      });
+      isFollow.followers = newFollowers;
+      const newFollowings = userFollowing.followings.filter((following) => {
+        return following._id.valueOf() !== req.params.id;
+      });
+      userFollowing.followings = newFollowings;
+      res.json({ message: "unfollow" });
+    }
+    isFollow.save();
+    userFollowing.save();
   } else {
-    follower.followers.filter((follower) => {
-      return follower.id !== req.auth.id;
-    });
-    res.json({message: "unfollow"})
+    res.json({ message: "user not found" });
   }
-  follower.save();
-  userFollowing.save();
-  // console.log(userFollowing);
 }
 
 module.exports = {
@@ -130,5 +142,5 @@ module.exports = {
   storeTweet,
   profile,
   destroy,
-  following
+  following,
 };
