@@ -1,6 +1,5 @@
 const express = require("express");
 const routes = express.Router();
-const authController = require("../controllers/authController");
 const {
   storeUser,
   token,
@@ -17,8 +16,6 @@ const verifyJwt = jwt({
   algorithms: ["HS256"],
 });
 const userGlobal = require("../middlewares/userGobalAvailable");
-
-routes.post("/logout", authController.logOutUser);
 
 // API-Routes
 routes.get("/", verifyJwt, userGlobal, index);
