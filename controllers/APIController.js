@@ -50,6 +50,7 @@ async function followingsTweets(req, res) {
   // console.log(req.user);
   const user = await User.findById(req.auth.id);
   const followings = user.followings;
+  followings.push(req.auth.id);
 
   const tweets = await Tweet.find({
     user: { $in: followings },
