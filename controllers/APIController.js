@@ -9,7 +9,7 @@ async function storeUser(req, res) {
   });
 
   if (user) {
-    res.json({ error: "User already exists with email or username." });
+    res.json({ message: "User already exists with email or username." });
   } else {
     const newUser = new User({
       firstname: req.body.firstname,
@@ -47,8 +47,9 @@ async function token(req, res) {
 }
 
 async function followingsTweets(req, res) {
-  // console.log(req.user);
-  const user = await User.findById(req.auth.id);
+  const user = await User.findById(req.auth.id).select(
+    "id firstname lastname username email description profileImage tweets followers followings",
+  );
   const followings = user.followings;
   followings.push(req.auth.id);
 
@@ -57,7 +58,10 @@ async function followingsTweets(req, res) {
   })
     .sort([["createdAt", "descending"]])
     .populate("user", "id firstname lastname username profileImage");
-  res.json({ tweets });
+  res.json({
+    user: user,
+    tweets: tweets,
+  });
 }
 
 async function storeTweet(req, res) {
@@ -69,25 +73,28 @@ async function storeTweet(req, res) {
   user.tweets.push(newTweet.id);
   newTweet.save((error) => {
     if (error) {
-      return res.json({ error: "Something went wrong creating a tweet." });
+      return res.json({ message: "Something went wrong creating a tweet." });
     }
   });
   user.save((error) => {
     if (error) {
-      return res.json({ error: "Something went wrong when updating the user." });
+      return res.json({ message: "Something went wrong when updating the user." });
     }
   });
   return res.json({ message: "The user was updated in the DB." });
 }
 
 async function profile(req, res) {
-  const userData = await User.findById(req.params.id)
+  const user = await User.findById(req.auth.id).select(
+    "id firstname lastname username email description profileImage tweets followers followings",
+  );
+  const userProfileData = await User.findById(req.params.id)
     .select(
       "id firstname lastname username email description profileImage tweets followers followings",
     )
     .populate("tweets")
     .sort([["createdAt", "descending"]]);
-  res.json(userData);
+  res.json({ user: user, userProfileData: userProfileData });
 }
 
 async function destroy(req, res) {
@@ -101,7 +108,7 @@ async function destroy(req, res) {
     });
     res.json({ message: "Tweet was deleted." });
   } else {
-    res.json({ error: "The tweet does not exist." });
+    res.json({ message: "The tweet does not exist." });
   }
 }
 
@@ -156,7 +163,7 @@ async function like(req, res) {
     }
     likedTweet.save();
   } else {
-    res.json({ error: "Couldn't like/unlike tweet." });
+    res.json({ message: "Couldn't like/unlike tweet." });
   }
 }
 
