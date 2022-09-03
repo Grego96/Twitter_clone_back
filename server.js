@@ -10,6 +10,7 @@ require("./config/mongoConfig"); // mongoose connect <-----
 app.use(cors())
 app.use(express.static(__dirname + "/public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json())
 
 routes(app);
 

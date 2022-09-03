@@ -2,7 +2,6 @@ const User = require("../models/User");
 const Tweet = require("../models/Tweet");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const checkJwt = require("express-jwt");
 
 async function storeUser(req, res) {
   const user = await User.findOne({
@@ -18,7 +17,9 @@ async function storeUser(req, res) {
       email: req.body.email,
       username: req.body.username,
       password: await bcrypt.hash(req.body.password, 8),
-      profileImage: req.body.profileImage ? req.body.profileImage : "../public/img/a0e243b3a508306970f49bc00.jpg"
+      profileImage: req.body.profileImage
+        ? req.body.profileImage
+        : "../public/img/a0e243b3a508306970f49bc00.jpg",
     });
     newUser.save((error) => {
       if (error) return res.json({ error: "A field is missing." });
@@ -45,7 +46,7 @@ async function token(req, res) {
   }
 }
 
-async function index(req, res) {
+async function followingsTweets(req, res) {
   // console.log(req.user);
   const user = await User.findById(req.auth.id);
   const followings = user.followings;
@@ -67,15 +68,15 @@ async function storeTweet(req, res) {
   user.tweets.push(newTweet.id);
   newTweet.save((error) => {
     if (error) {
-      res.json({ error: "Something went wrong creating a tweet." });
+      return res.json({ error: "Something went wrong creating a tweet." });
     }
   });
   user.save((error) => {
     if (error) {
-      res.json({ error: "Something went wrong when updating the user." });
+      return res.json({ error: "Something went wrong when updating the user." });
     }
   });
-  res.json({ message: "The user was updated in the DB." });
+  return res.json({ message: "The user was updated in the DB." });
 }
 
 async function profile(req, res) {
@@ -161,7 +162,7 @@ async function like(req, res) {
 module.exports = {
   storeUser,
   token,
-  index,
+  followingsTweets,
   storeTweet,
   profile,
   destroy,

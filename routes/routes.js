@@ -3,7 +3,7 @@ const routes = express.Router();
 const {
   storeUser,
   token,
-  index,
+  followingsTweets,
   storeTweet,
   profile,
   destroy,
@@ -18,13 +18,16 @@ const verifyJwt = jwt({
 const userGlobal = require("../middlewares/userGobalAvailable");
 
 // API-Routes
-routes.get("/", verifyJwt, userGlobal, index);
 routes.post("/login", token);
-routes.post("/users", storeUser);
-routes.get("/users/:id", verifyJwt, userGlobal, profile);
-routes.patch("/users/follow/:id", verifyJwt, following);
-routes.post("/tweets", verifyJwt, storeTweet);
-routes.patch("/tweets/like/:id", verifyJwt, like);
-routes.delete("/tweets/:id", verifyJwt, destroy);
+routes.post("/users", storeUser); // store
+
+routes.use(verifyJwt);
+
+routes.get("/", userGlobal, followingsTweets);
+routes.get("/users/:id", userGlobal, profile); // show
+routes.patch("/users/:id/follow", following);
+routes.post("/tweets", storeTweet); // store
+routes.patch("/tweets/:id/like", like);
+routes.delete("/tweets/:id", destroy);
 
 module.exports = routes;
