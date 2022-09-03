@@ -18,7 +18,9 @@ async function storeUser(req, res) {
       email: req.body.email,
       username: req.body.username,
       password: await bcrypt.hash(req.body.password, 8),
-      profileImage: req.body.profileImage ? req.body.profileImage : "../public/img/a0e243b3a508306970f49bc00.jpg"
+      profileImage: req.body.profileImage
+        ? req.body.profileImage
+        : "../public/img/a0e243b3a508306970f49bc00.jpg",
     });
     newUser.save((error) => {
       if (error) return res.json({ error: "A field is missing." });
@@ -49,6 +51,7 @@ async function index(req, res) {
   // console.log(req.user);
   const user = await User.findById(req.auth.id);
   const followings = user.followings;
+  followings.push(req.auth.id);
 
   const tweets = await Tweet.find({
     user: { $in: followings },
