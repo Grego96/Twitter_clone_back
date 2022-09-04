@@ -7,9 +7,8 @@ async function storeUser(req, res) {
   const user = await User.findOne({
     $or: [{ email: req.body.email }, { username: req.body.username }],
   });
-
   if (user) {
-    res.json({ message: "User already exists with email or username." });
+    res.status(400).json({ message: "User already exists with email or username." });
   } else {
     const newUser = new User({
       firstname: req.body.firstname,
@@ -22,27 +21,28 @@ async function storeUser(req, res) {
         : "../public/img/a0e243b3a508306970f49bc00.jpg",
     });
     newUser.save((error) => {
-      if (error) return res.json({ error: "A field is missing." });
-      res.json({ message: "A new user was created in the db." });
+      if (error) return res.status(400).json({ message: "A field is missing." });
+      res.status(201).json({ message: "A new user was created in the db." });
     });
   }
 }
 
 async function token(req, res) {
+  console.log(req.body);
   const user = await User.findOne({
-    $or: [{ username: req.body.username }, { email: req.body.email }],
+    $or: [{ username: req.body.userNameToLogin }, { email: req.body.userNameToLogin }],
   });
 
   if (user) {
     const compare = await bcrypt.compare(req.body.password, user.password);
     if (compare) {
       const token = jwt.sign({ user: user.username, id: user.id }, process.env.JWT_SECRET_STRING);
-      res.json({ token });
+      res.status(200).json({ token });
     } else {
-      res.json({ error: "Invalid credentials." });
+      res.status(400).json({ message: "Invalid credentials." });
     }
   } else {
-    res.json({ error: "Invalid credentials." });
+    res.status(400).json({ message: "Invalid credentials." });
   }
 }
 
@@ -58,7 +58,7 @@ async function followingsTweets(req, res) {
   })
     .sort([["createdAt", "descending"]])
     .populate("user", "id firstname lastname username profileImage");
-  res.json({
+  res.status(200).json({
     user: user,
     tweets: tweets,
   });
@@ -73,15 +73,15 @@ async function storeTweet(req, res) {
   user.tweets.push(newTweet.id);
   newTweet.save((error) => {
     if (error) {
-      return res.json({ message: "Something went wrong creating a tweet." });
+      return res.status(400).json({ message: "Something went wrong creating a tweet." });
     }
   });
   user.save((error) => {
     if (error) {
-      return res.json({ message: "Something went wrong when updating the user." });
+      return res.status(400).json({ message: "Something went wrong when updating the user." });
     }
   });
-  return res.json({ message: "The user was updated in the DB." });
+  return res.status(200).json({ message: "The user was updated in the DB." });
 }
 
 async function profile(req, res) {
@@ -94,7 +94,7 @@ async function profile(req, res) {
     )
     .populate("tweets")
     .sort([["createdAt", "descending"]]);
-  res.json({ user: user, userProfileData: userProfileData });
+  res.status(200).json({ user: user, userProfileData: userProfileData });
 }
 
 async function destroy(req, res) {
@@ -106,9 +106,9 @@ async function destroy(req, res) {
     await User.findByIdAndUpdate(req.auth.id, {
       $pull: { tweets: req.params.id },
     });
-    res.json({ message: "Tweet was deleted." });
+    res.status(200).json({ message: "Tweet was deleted." });
   } else {
-    res.json({ message: "The tweet does not exist." });
+    res.status(404).json({ message: "The tweet does not exist." });
   }
 }
 
@@ -124,7 +124,7 @@ async function following(req, res) {
     if (!isFollowing) {
       isFollow.followers.push(userFollowing.id);
       userFollowing.followings.push(isFollow.id);
-      res.json({ message: "Follow" });
+      res.status(200).json({ message: "Follow" });
     } else {
       const newFollowers = isFollow.followers.filter((follower) => {
         return follower._id.valueOf() !== req.auth.id;
@@ -134,12 +134,12 @@ async function following(req, res) {
         return following._id.valueOf() !== req.params.id;
       });
       userFollowing.followings = newFollowings;
-      res.json({ message: "Unfollow" });
+      res.status(200).json({ message: "Unfollow" });
     }
     isFollow.save();
     userFollowing.save();
   } else {
-    res.json({ message: "User not found." });
+    res.status(404).json({ message: "User not found." });
   }
 }
 
@@ -153,17 +153,17 @@ async function like(req, res) {
   if (likedTweet) {
     if (!isLiked) {
       likedTweet.likes.push(req.auth.id);
-      res.json({ message: "Tweet liked!" });
+      res.status(200).json({ message: "Tweet liked!" });
     } else {
       const unlikedTweet = likedTweet.likes.filter((unlike) => {
         return unlike._id.valueOf() !== req.auth.id;
       });
       likedTweet.likes = unlikedTweet;
-      res.json({ message: "Tweet unliked!" });
+      res.status(200).json({ message: "Tweet unliked!" });
     }
     likedTweet.save();
   } else {
-    res.json({ message: "Couldn't like/unlike tweet." });
+    res.status(404).json({ message: "Couldn't like/unlike tweet." });
   }
 }
 
