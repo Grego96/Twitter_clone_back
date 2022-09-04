@@ -9,6 +9,7 @@ const {
   destroy,
   following,
   like,
+  getRandomsUnfollowers
 } = require("../controllers/APIController");
 const { expressjwt: jwt } = require("express-jwt");
 const verifyJwt = jwt({
@@ -19,14 +20,15 @@ const userGlobal = require("../middlewares/userGobalAvailable");
 
 // API-Routes
 routes.post("/login", token);
-routes.post("/users", storeUser); // store
+routes.post("/users", storeUser);
 
 routes.use(verifyJwt);
 
+routes.get("/users/randomUnfollowers", getRandomsUnfollowers)
 routes.get("/", userGlobal, followingsTweets);
-routes.get("/users/:id", userGlobal, profile); // show
+routes.get("/users/:id", userGlobal, profile);
 routes.patch("/users/:id/follow", following);
-routes.post("/tweets", storeTweet); // store
+routes.post("/tweets", storeTweet);
 routes.patch("/tweets/:id/like", like);
 routes.delete("/tweets/:id", destroy);
 

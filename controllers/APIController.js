@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Tweet = require("../models/Tweet");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const _ = require("lodash")
 
 async function storeUser(req, res) {
   const user = await User.findOne({
@@ -28,7 +29,6 @@ async function storeUser(req, res) {
 }
 
 async function token(req, res) {
-  console.log(req.body);
   const user = await User.findOne({
     $or: [{ username: req.body.userNameToLogin }, { email: req.body.userNameToLogin }],
   });
@@ -167,6 +167,14 @@ async function like(req, res) {
   }
 }
 
+async function getRandomsUnfollowers(req, res) {
+  const Unfollowers = await User.find({ "followers": { "$ne": req.auth.id } }).select(
+    "id firstname lastname username email description profileImage tweets followers followings",
+  );
+  const randomsUnfollowers = _.sampleSize(Unfollowers, req.query.number)
+  res.status(200).json({ randomsUnfollowers })
+}
+
 module.exports = {
   storeUser,
   token,
@@ -176,4 +184,5 @@ module.exports = {
   destroy,
   following,
   like,
+  getRandomsUnfollowers
 };
