@@ -2,7 +2,7 @@ const User = require("../models/User");
 const Tweet = require("../models/Tweet");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const _ = require("lodash")
+const _ = require("lodash");
 
 async function storeUser(req, res) {
   const user = await User.findOne({
@@ -85,16 +85,16 @@ async function storeTweet(req, res) {
 }
 
 async function profile(req, res) {
-  const user = await User.findById(req.auth.id).select(
-    "id firstname lastname username email description profileImage tweets followers followings",
-  );
-  const userProfileData = await User.findById(req.params.id)
+  // const user = await User.findById(req.auth.id).select(
+  //   "id firstname lastname username email description profileImage tweets followers followings",
+  // );
+  const user = await User.findById(req.params.id)
     .select(
       "id firstname lastname username email description profileImage tweets followers followings",
     )
     .populate("tweets")
     .sort([["createdAt", "descending"]]);
-  res.status(200).json({ user: user, userProfileData: userProfileData });
+  res.status(200).json(user);
 }
 
 async function destroy(req, res) {
@@ -168,11 +168,11 @@ async function like(req, res) {
 }
 
 async function getRandomsUnfollowers(req, res) {
-  const Unfollowers = await User.find({ "followers": { "$ne": req.auth.id } }).select(
+  const Unfollowers = await User.find({ followers: { $ne: req.auth.id } }).select(
     "id firstname lastname username email description profileImage tweets followers followings",
   );
-  const randomsUnfollowers = _.sampleSize(Unfollowers, req.query.number)
-  res.status(200).json({ randomsUnfollowers })
+  const randomsUnfollowers = _.sampleSize(Unfollowers, req.query.number);
+  res.status(200).json({ randomsUnfollowers });
 }
 
 module.exports = {
@@ -184,5 +184,5 @@ module.exports = {
   destroy,
   following,
   like,
-  getRandomsUnfollowers
+  getRandomsUnfollowers,
 };
